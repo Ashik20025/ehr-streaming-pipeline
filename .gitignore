@@ -1,0 +1,10 @@
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+*.log
+data/
+artifacts/experiments/
+dashboard/node_modules/
+dashboard/dist/
+flink-job/target/

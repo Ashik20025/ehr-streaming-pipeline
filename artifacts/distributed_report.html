@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Distributed Streaming EHR Pipeline Report</title>
+  <style>
+    body { margin: 0; background: #f7faf8; color: #17211f; font-family: Arial, Helvetica, sans-serif; }
+    main { max-width: 1120px; margin: 0 auto; padding: 34px 18px 50px; }
+    .eyebrow { color: #006b5f; font-weight: 700; text-transform: uppercase; font-size: 0.78rem; }
+    h1 { margin: 0 0 10px; font-size: 2rem; }
+    p { max-width: 820px; line-height: 1.5; }
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 24px 0; }
+    .metric, article { background: white; border: 1px solid #d8e3df; border-radius: 6px; padding: 16px; }
+    .metric span { color: #50625c; }
+    .metric strong { display: block; font-size: 1.5rem; margin-top: 5px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 14px; }
+    .row { display: grid; grid-template-columns: 180px 1fr 90px; align-items: center; gap: 10px; margin: 8px 0; }
+    .label { overflow-wrap: anywhere; font-size: 0.92rem; }
+    .track { height: 18px; background: #edf5f2; border-radius: 5px; overflow: hidden; }
+    .bar { height: 100%; background: #00856f; }
+    .count { text-align: right; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+
+    <main>
+      <p class="eyebrow">Kafka + Flink + Redis + Cassandra</p>
+      <h1>Distributed Streaming EHR Pipeline Report</h1>
+      <p>
+        This report is generated from Cassandra after the local distributed pipeline
+        consumes synthetic EHR events from Kafka, validates them in Flink, enriches
+        them with Redis patient metadata, stores valid events, and quarantines bad
+        records.
+      </p>
+      <section class="metrics">
+        <div class="metric"><span>Valid records</span><strong>9,425</strong></div>
+        <div class="metric"><span>Quarantined records</span><strong>575</strong></div>
+        <div class="metric"><span>Possible-sepsis alerts</span><strong>1</strong></div>
+        <div class="metric"><span>Producer throughput</span><strong>28,083 events/sec</strong></div>
+        <div class="metric"><span>Average latency</span><strong>5,809 ms</strong></div>
+        <div class="metric"><span>P95 latency</span><strong>10,212 ms</strong></div>
+      </section>
+      <section class="grid">
+        <article>
+          <h2>Valid Vs Quarantined</h2>
+          <div class="row"><div class="label">valid</div><div class="track"><div class="bar" style="width:100.0%"></div></div><div class="count">9,425</div></div>
+<div class="row"><div class="label">quarantined</div><div class="track"><div class="bar" style="width:6.1%"></div></div><div class="count">575</div></div>
+          <p>94.2% of processed records were accepted.</p>
+        </article>
+        <article>
+          <h2>Throughput And Latency</h2>
+          <div class="row"><div class="label">producer_events_per_sec</div><div class="track"><div class="bar" style="width:100.0%"></div></div><div class="count">28,082</div></div>
+<div class="row"><div class="label">p95_latency_ms</div><div class="track"><div class="bar" style="width:36.4%"></div></div><div class="count">10,212</div></div>
+<div class="row"><div class="label">p50_latency_ms</div><div class="track"><div class="bar" style="width:20.7%"></div></div><div class="count">5,819</div></div>
+<div class="row"><div class="label">avg_latency_ms</div><div class="track"><div class="bar" style="width:20.7%"></div></div><div class="count">5,809</div></div>
+        </article>
+        <article>
+          <h2>Events Stored By Type</h2>
+          <div class="row"><div class="label">lab</div><div class="track"><div class="bar" style="width:100.0%"></div></div><div class="count">2,415</div></div>
+<div class="row"><div class="label">medication</div><div class="track"><div class="bar" style="width:98.5%"></div></div><div class="count">2,378</div></div>
+<div class="row"><div class="label">vital</div><div class="track"><div class="bar" style="width:98.0%"></div></div><div class="count">2,366</div></div>
+<div class="row"><div class="label">admission</div><div class="track"><div class="bar" style="width:93.8%"></div></div><div class="count">2,266</div></div>
+        </article>
+        <article>
+          <h2>Quarantine Reasons</h2>
+          <div class="row"><div class="label">duplicate_event_id</div><div class="track"><div class="bar" style="width:100.0%"></div></div><div class="count">175</div></div>
+<div class="row"><div class="label">contains_direct_phi</div><div class="track"><div class="bar" style="width:48.0%"></div></div><div class="count">84</div></div>
+<div class="row"><div class="label">missing_patient_id</div><div class="track"><div class="bar" style="width:47.4%"></div></div><div class="count">83</div></div>
+<div class="row"><div class="label">unknown_event_type</div><div class="track"><div class="bar" style="width:45.7%"></div></div><div class="count">80</div></div>
+<div class="row"><div class="label">bad_event_time</div><div class="track"><div class="bar" style="width:42.3%"></div></div><div class="count">74</div></div>
+<div class="row"><div class="label">vital_out_of_range</div><div class="track"><div class="bar" style="width:12.0%"></div></div><div class="count">21</div></div>
+<div class="row"><div class="label">lab_out_of_range</div><div class="track"><div class="bar" style="width:12.0%"></div></div><div class="count">21</div></div>
+<div class="row"><div class="label">missing_medication</div><div class="track"><div class="bar" style="width:10.9%"></div></div><div class="count">19</div></div>
+<div class="row"><div class="label">missing_department</div><div class="track"><div class="bar" style="width:10.3%"></div></div><div class="count">18</div></div>
+        </article>
+      </section>
+    </main>
+    
+</body>
+</html>

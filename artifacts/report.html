@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Streaming EHR Pipeline Report</title>
+  <style>
+    :root {
+      color: #17211f;
+      background: #f7faf8;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    body { margin: 0; background: #f7faf8; }
+    main { max-width: 1160px; margin: 0 auto; padding: 32px 18px 48px; }
+    .intro { margin-bottom: 24px; }
+    .eyebrow { color: #006b5f; font-weight: 700; text-transform: uppercase; font-size: 0.78rem; }
+    h1 { margin: 0 0 10px; font-size: 2rem; }
+    h2 { margin: 0 0 14px; font-size: 1.1rem; }
+    p { max-width: 780px; line-height: 1.5; }
+    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 22px 0; }
+    .metric, article { background: white; border: 1px solid #d8e3df; border-radius: 6px; padding: 16px; }
+    .metric strong { display: block; font-size: 1.45rem; margin-top: 5px; }
+    .metric span { color: #50625c; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 14px; }
+    svg { width: 100%; height: auto; display: block; }
+    table { width: 100%; border-collapse: collapse; background: white; border: 1px solid #d8e3df; }
+    th, td { text-align: left; border-bottom: 1px solid #e5ece9; padding: 10px; vertical-align: top; }
+    th { background: #edf5f2; }
+    pre { overflow: auto; background: #10201c; color: #e7fff8; padding: 14px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+    <main>
+      <section class="intro">
+        <p class="eyebrow">Local streaming EHR pipeline run</p>
+        <h1>Real-Time EHR Ingestion and Validation Report</h1>
+        <p>
+          Synthetic EHR events were streamed through validation, deduplication,
+          event-time lateness handling, quarantine, SQLite serving storage, and a
+          possible-sepsis CEP rule.
+        </p>
+      </section>
+
+      <section class="metrics">
+        <div class="metric"><span>Total events</span><strong>20000</strong></div>
+        <div class="metric"><span>Accepted</span><strong>18065</strong></div>
+        <div class="metric"><span>Quarantined</span><strong>1935</strong></div>
+        <div class="metric"><span>Throughput</span><strong>50,312 evt/sec</strong></div>
+        <div class="metric"><span>P95 latency</span><strong>0.012 ms</strong></div>
+        <div class="metric"><span>CEP alerts</span><strong>37</strong></div>
+      </section>
+
+      <section class="grid">
+        <article>
+          <h2>Throughput by Chunk</h2>
+          
+    <svg viewBox="0 0 620 250" role="img" aria-label="Bar chart in evt/sec">
+      <line x1="56" y1="18" x2="56" y2="214" stroke="#879892"></line>
+      <line x1="56" y1="214" x2="612" y2="214" stroke="#879892"></line>
+      <text x="8" y="22" font-size="11">max 55,765.5 evt/sec</text>
+      <rect x="56.0" y="103.0" width="21.3" height="111.0" fill="#00856f"></rect><text x="66.7" y="238" text-anchor="middle" font-size="10">1</text><rect x="83.3" y="23.9" width="21.3" height="190.1" fill="#00856f"></rect><text x="94.0" y="238" text-anchor="middle" font-size="10">2</text><rect x="110.6" y="39.7" width="21.3" height="174.3" fill="#00856f"></rect><text x="121.2" y="238" text-anchor="middle" font-size="10">3</text><rect x="137.9" y="24.9" width="21.3" height="189.1" fill="#00856f"></rect><text x="148.6" y="238" text-anchor="middle" font-size="10">4</text><rect x="165.2" y="20.3" width="21.3" height="193.7" fill="#00856f"></rect><text x="175.8" y="238" text-anchor="middle" font-size="10">5</text><rect x="192.5" y="18.0" width="21.3" height="196.0" fill="#00856f"></rect><text x="203.2" y="238" text-anchor="middle" font-size="10">6</text><rect x="219.8" y="24.7" width="21.3" height="189.3" fill="#00856f"></rect><text x="230.5" y="238" text-anchor="middle" font-size="10">7</text><rect x="247.1" y="32.1" width="21.3" height="181.9" fill="#00856f"></rect><text x="257.8" y="238" text-anchor="middle" font-size="10">8</text><rect x="274.4" y="37.9" width="21.3" height="176.1" fill="#00856f"></rect><text x="285.0" y="238" text-anchor="middle" font-size="10">9</text><rect x="301.7" y="28.6" width="21.3" height="185.4" fill="#00856f"></rect><text x="312.4" y="238" text-anchor="middle" font-size="10">10</text><rect x="329.0" y="39.4" width="21.3" height="174.6" fill="#00856f"></rect><text x="339.6" y="238" text-anchor="middle" font-size="10">11</text><rect x="356.3" y="40.8" width="21.3" height="173.2" fill="#00856f"></rect><text x="366.9" y="238" text-anchor="middle" font-size="10">12</text><rect x="383.6" y="29.4" width="21.3" height="184.6" fill="#00856f"></rect><text x="394.2" y="238" text-anchor="middle" font-size="10">13</text><rect x="410.9" y="21.4" width="21.3" height="192.6" fill="#00856f"></rect><text x="421.6" y="238" text-anchor="middle" font-size="10">14</text><rect x="438.2" y="30.0" width="21.3" height="184.0" fill="#00856f"></rect><text x="448.8" y="238" text-anchor="middle" font-size="10">15</text><rect x="465.5" y="28.9" width="21.3" height="185.1" fill="#00856f"></rect><text x="476.1" y="238" text-anchor="middle" font-size="10">16</text><rect x="492.8" y="29.0" width="21.3" height="185.0" fill="#00856f"></rect><text x="503.4" y="238" text-anchor="middle" font-size="10">17</text><rect x="520.1" y="36.2" width="21.3" height="177.8" fill="#00856f"></rect><text x="530.8" y="238" text-anchor="middle" font-size="10">18</text><rect x="547.4" y="21.3" width="21.3" height="192.7" fill="#00856f"></rect><text x="558.1" y="238" text-anchor="middle" font-size="10">19</text><rect x="574.7" y="44.0" width="21.3" height="170.0" fill="#00856f"></rect><text x="585.4" y="238" text-anchor="middle" font-size="10">20</text>
+    </svg>
+    
+        </article>
+        <article>
+          <h2>Valid vs Quarantined</h2>
+          
+    <svg viewBox="0 0 620 250" role="img" aria-label="Bar chart in records">
+      <line x1="56" y1="18" x2="56" y2="214" stroke="#879892"></line>
+      <line x1="56" y1="214" x2="612" y2="214" stroke="#879892"></line>
+      <text x="8" y="22" font-size="11">max 18,065.0 records</text>
+      <rect x="56.0" y="18.0" width="267.0" height="196.0" fill="#00856f"></rect><text x="189.5" y="238" text-anchor="middle" font-size="10">valid</text><rect x="329.0" y="193.0" width="267.0" height="21.0" fill="#00856f"></rect><text x="462.5" y="238" text-anchor="middle" font-size="10">quarantine</text>
+    </svg>
+    
+        </article>
+        <article>
+          <h2>Event Types Stored</h2>
+          
+    <svg viewBox="0 0 620 250" role="img" aria-label="Bar chart in records">
+      <line x1="56" y1="18" x2="56" y2="214" stroke="#879892"></line>
+      <line x1="56" y1="214" x2="612" y2="214" stroke="#879892"></line>
+      <text x="8" y="22" font-size="11">max 4,575.0 records</text>
+      <rect x="56.0" y="22.8" width="130.5" height="191.2" fill="#00856f"></rect><text x="121.2" y="238" text-anchor="middle" font-size="10">admission</text><rect x="192.5" y="21.0" width="130.5" height="193.0" fill="#00856f"></rect><text x="257.8" y="238" text-anchor="middle" font-size="10">lab</text><rect x="329.0" y="20.2" width="130.5" height="193.8" fill="#00856f"></rect><text x="394.2" y="238" text-anchor="middle" font-size="10">medication</text><rect x="465.5" y="18.0" width="130.5" height="196.0" fill="#00856f"></rect><text x="530.8" y="238" text-anchor="middle" font-size="10">vital</text>
+    </svg>
+    
+        </article>
+        <article>
+          <h2>Quarantine Reasons</h2>
+          
+    <svg viewBox="0 0 620 250" role="img" aria-label="Bar chart in records">
+      <line x1="56" y1="18" x2="56" y2="214" stroke="#879892"></line>
+      <line x1="56" y1="214" x2="612" y2="214" stroke="#879892"></line>
+      <text x="8" y="22" font-size="11">max 576.0 records</text>
+      <rect x="56.0" y="137.4" width="48.6" height="76.6" fill="#00856f"></rect><text x="80.3" y="238" text-anchor="middle" font-size="10">bad_event_time</text><rect x="110.6" y="141.9" width="48.6" height="72.1" fill="#00856f"></rect><text x="134.9" y="238" text-anchor="middle" font-size="10">contains_direct_ph</text><rect x="165.2" y="82.3" width="48.6" height="131.7" fill="#00856f"></rect><text x="189.5" y="238" text-anchor="middle" font-size="10">duplicate_event_id</text><rect x="219.8" y="199.0" width="48.6" height="15.0" fill="#00856f"></rect><text x="244.1" y="238" text-anchor="middle" font-size="10">lab_out_of_range</text><rect x="274.4" y="18.0" width="48.6" height="196.0" fill="#00856f"></rect><text x="298.7" y="238" text-anchor="middle" font-size="10">late_event</text><rect x="329.0" y="203.5" width="48.6" height="10.5" fill="#00856f"></rect><text x="353.3" y="238" text-anchor="middle" font-size="10">missing_department</text><rect x="383.6" y="204.8" width="48.6" height="9.2" fill="#00856f"></rect><text x="407.9" y="238" text-anchor="middle" font-size="10">missing_medication</text><rect x="438.2" y="145.3" width="48.6" height="68.7" fill="#00856f"></rect><text x="462.5" y="238" text-anchor="middle" font-size="10">missing_patient_id</text><rect x="492.8" y="150.4" width="48.6" height="63.6" fill="#00856f"></rect><text x="517.1" y="238" text-anchor="middle" font-size="10">unknown_event_type</text><rect x="547.4" y="199.0" width="48.6" height="15.0" fill="#00856f"></rect><text x="571.7" y="238" text-anchor="middle" font-size="10">vital_out_of_range</text>
+    </svg>
+    
+        </article>
+      </section>
+
+      <section>
+        <h2>Sample Quarantined Records</h2>
+        <table>
+          <thead><tr><th>Reason</th><th>Record Preview</th></tr></thead>
+          <tbody>
+            <tr><td>unknown_event_type</td><td><code>{&quot;event_id&quot;: &quot;0d624bb2-fe72-4942-c5d4-f71fdedcb3bb&quot;, &quot;event_time&quot;: &quot;2026-04-18T18:49:59Z&quot;, &quot;event_type&quot;: &quot;fax&quot;, &quot;injected_issue&quot;: &quot;invalid&quot;, &quot;patient_id&quot;: &quot;P000938&quot;, &quot;payload&quot;: {&quot;acuity&quot;: 4, &quot;department&quot;: &quot;ICU&quot;}, &quot;schema</code></td></tr><tr><td>missing_patient_id</td><td><code>{&quot;event_id&quot;: &quot;61719260-dbc7-8752-e901-ec2fa4bbfa5f&quot;, &quot;event_time&quot;: &quot;2026-04-18T18:49:59Z&quot;, &quot;event_type&quot;: &quot;vital&quot;, &quot;injected_issue&quot;: &quot;invalid&quot;, &quot;payload&quot;: {&quot;name&quot;: &quot;systolic_bp&quot;, &quot;unit&quot;: &quot;mmHg&quot;, &quot;value&quot;: 161.4}, &quot;schema_v</code></td></tr><tr><td>missing_patient_id</td><td><code>{&quot;event_id&quot;: &quot;5321a095-6725-d873-e237-4c151ca51b54&quot;, &quot;event_time&quot;: &quot;2026-04-18T18:49:59Z&quot;, &quot;event_type&quot;: &quot;admission&quot;, &quot;injected_issue&quot;: &quot;invalid&quot;, &quot;payload&quot;: {&quot;acuity&quot;: 4, &quot;department&quot;: &quot;surgery&quot;}, &quot;schema_version&quot;: &quot;ehr</code></td></tr><tr><td>missing_patient_id</td><td><code>{&quot;event_id&quot;: &quot;ba1431b4-0287-7ced-79f4-bb20b58582ce&quot;, &quot;event_time&quot;: &quot;2026-04-18T18:49:59Z&quot;, &quot;event_type&quot;: &quot;medication&quot;, &quot;injected_issue&quot;: &quot;invalid&quot;, &quot;payload&quot;: {&quot;dose&quot;: 431.3, &quot;medication&quot;: &quot;vancomycin&quot;, &quot;route&quot;: &quot;PO&quot;, &quot;u</code></td></tr><tr><td>bad_event_time</td><td><code>{&quot;event_id&quot;: &quot;e0073baa-2419-d450-6c8e-43f97253c2f4&quot;, &quot;event_time&quot;: &quot;not-a-timestamp&quot;, &quot;event_type&quot;: &quot;vital&quot;, &quot;injected_issue&quot;: &quot;invalid&quot;, &quot;patient_id&quot;: &quot;P001475&quot;, &quot;payload&quot;: {&quot;name&quot;: &quot;heart_rate&quot;, &quot;unit&quot;: &quot;bpm&quot;, &quot;value&quot;:</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Run Metrics JSON</h2>
+        <pre>{
+  &quot;accepted&quot;: 18065,
+  &quot;alerts&quot;: 37,
+  &quot;duplicates&quot;: 387,
+  &quot;duration_sec&quot;: 0.39752100000623614,
+  &quot;late&quot;: 576,
+  &quot;mean_latency_ms&quot;: 0.006330947052979202,
+  &quot;out_of_order&quot;: 2165,
+  &quot;p50_latency_ms&quot;: 0.005541020072996616,
+  &quot;p95_latency_ms&quot;: 0.011625001206994057,
+  &quot;quarantined&quot;: 1935,
+  &quot;reasons&quot;: {
+    &quot;bad_event_time&quot;: 225,
+    &quot;contains_direct_phi&quot;: 212,
+    &quot;duplicate_event_id&quot;: 387,
+    &quot;lab_out_of_range&quot;: 44,
+    &quot;late_event&quot;: 576,
+    &quot;missing_department&quot;: 31,
+    &quot;missing_medication&quot;: 27,
+    &quot;missing_patient_id&quot;: 202,
+    &quot;unknown_event_type&quot;: 187,
+    &quot;vital_out_of_range&quot;: 44
+  },
+  &quot;throughput_buckets&quot;: [
+    31587.63331723749,
+    54080.12067400322,
+    49585.34254425894,
+    53811.05497061785,
+    55104.00881958244,
+    55765.450456264916,
+    53845.103104512105,
+    51752.35543014775,
+    50107.10390139579,
+    52757.920355385955,
+    49679.670417004774,
+    49289.20773020179,
+    52523.76698757633,
+    54793.52075461612,
+    52339.00669027686,
+    52673.39605493833,
+    52623.1537289736,
+    50574.9742271001,
+    54839.970127374654,
+    48376.36812642005
+  ],
+  &quot;throughput_eps&quot;: 50311.807425736624,
+  &quot;total&quot;: 20000
+}</pre>
+      </section>
+    </main>
+    
+</body>
+</html>
