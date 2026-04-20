@@ -28,4 +28,6 @@ for events in $EVENTS_LIST; do
 done
 
 python3 scripts/summarize_experiments.py --experiment-dir "$OUT_DIR" --output-dir "$OUT_DIR"
+python3 scripts/generate_final_report.py --experiment-dir "$OUT_DIR" --output artifacts/final_report_draft.md
 echo "Experiment matrix complete: $OUT_DIR/experiment_summary.html"
+echo "Final report draft: artifacts/final_report_draft.md"

@@ -14,14 +14,18 @@ def main() -> None:
     rows = [row_from_summary(path) for path in sorted(experiment_dir.glob("*/summary.json"))]
     rows = [row for row in rows if row]
     if not rows:
-        raise SystemExit(f"No experiment summaries found under {experiment_dir}")
+        print(f"No experiment summaries found under {experiment_dir}")
+        print("Run scripts/run_experiment_matrix.sh to generate multi-run results.")
+        return
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     write_csv(output_dir / "experiment_summary.csv", rows)
+    write_json(output_dir / "experiment_summary.json", rows)
     write_markdown(output_dir / "experiment_summary.md", rows)
     write_html(output_dir / "experiment_summary.html", rows)
     print(f"wrote {output_dir / 'experiment_summary.csv'}")
+    print(f"wrote {output_dir / 'experiment_summary.json'}")
     print(f"wrote {output_dir / 'experiment_summary.md'}")
     print(f"wrote {output_dir / 'experiment_summary.html'}")
 
@@ -48,11 +52,13 @@ def row_from_summary(path: Path) -> dict[str, Any]:
         "quarantine": int(totals["quarantine"]),
         "alerts": int(totals["alerts"]),
         "accepted_percent": float(totals["accepted_percent"]),
+        "quarantine_percent": round(100.0 - float(totals["accepted_percent"]), 2),
         "avg_latency_ms": round(float(latency["avg_ms"]), 2),
         "p50_latency_ms": round(float(latency["p50_ms"]), 2),
         "p95_latency_ms": round(float(latency["p95_ms"]), 2),
         "max_latency_ms": round(float(latency["max_ms"]), 2),
         "top_quarantine_reason": top_reason(data.get("quarantine_reasons", {})),
+        "event_mix": event_mix(data.get("event_counts", {})),
     }
 
 
@@ -68,6 +74,10 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
         writer.writeheader()
         writer.writerows(rows)
+
+
+def write_json(path: Path, rows: list[dict[str, Any]]) -> None:
+    path.write_text(json.dumps(rows, indent=2), encoding="utf-8")
 
 
 def write_markdown(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -90,6 +100,8 @@ def write_html(path: Path, rows: list[dict[str, Any]]) -> None:
         "<tr>" + "".join(f"<td>{html.escape(str(row[key]))}</td>" for key in headers) + "</tr>"
         for row in rows
     )
+    best_throughput = max(rows, key=lambda row: row["producer_events_per_sec"])
+    best_latency = min(rows, key=lambda row: row["p95_latency_ms"])
     body = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -101,6 +113,10 @@ def write_html(path: Path, rows: list[dict[str, Any]]) -> None:
     main {{ max-width: 1180px; margin: 0 auto; padding: 32px 18px 48px; }}
     h1 {{ margin: 0 0 8px; }}
     p {{ max-width: 860px; line-height: 1.5; }}
+    .cards {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 22px 0; }}
+    .card {{ background: white; border: 1px solid #d8e3df; border-radius: 8px; padding: 14px; }}
+    .card span {{ color: #50625c; display: block; margin-bottom: 5px; }}
+    .card strong {{ font-size: 1.4rem; }}
     table {{ width: 100%; border-collapse: collapse; background: white; border: 1px solid #d8e3df; }}
     th, td {{ border-bottom: 1px solid #d8e3df; padding: 10px; text-align: left; font-size: 0.92rem; }}
     th {{ background: #edf5f2; }}
@@ -113,6 +129,12 @@ def write_html(path: Path, rows: list[dict[str, Any]]) -> None:
     This table aggregates repeated Kafka-Flink-Redis-Cassandra EHR streaming
     runs. Use it for the final report after collecting multiple workloads.
   </p>
+  <section class="cards">
+    <div class="card"><span>Runs summarized</span><strong>{len(rows)}</strong></div>
+    <div class="card"><span>Highest producer throughput</span><strong>{best_throughput["producer_events_per_sec"]:,.0f}/s</strong></div>
+    <div class="card"><span>Lowest p95 latency</span><strong>{best_latency["p95_latency_ms"]:,.0f} ms</strong></div>
+    <div class="card"><span>Total events sent</span><strong>{sum(row["events_sent"] for row in rows):,}</strong></div>
+  </section>
   <table>
     <thead><tr>{table_headers}</tr></thead>
     <tbody>{table_rows}</tbody>
@@ -122,6 +144,12 @@ def write_html(path: Path, rows: list[dict[str, Any]]) -> None:
 </html>
 """
     path.write_text(body, encoding="utf-8")
+
+
+def event_mix(counts: dict[str, int]) -> str:
+    if not counts:
+        return "none"
+    return ", ".join(f"{name}:{count}" for name, count in sorted(counts.items()))
 
 
 if __name__ == "__main__":

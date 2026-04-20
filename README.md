@@ -51,6 +51,7 @@ stream-tools/report.py                     Cassandra summary/report generator
 dashboard/                                 React and Material UI dashboard
 scripts/run_distributed_pipeline.sh        Full distributed pipeline runner
 scripts/run_experiment_matrix.sh           Multi-run experiment script
+scripts/generate_final_report.py           Markdown final report draft generator
 src/                                       Dependency-free local prototype
 tests/                                     Validation tests
 artifacts/                                 Generated preliminary outputs
@@ -150,8 +151,22 @@ Experiment outputs are written under `artifacts/experiments/`:
 
 ```text
 artifacts/experiments/experiment_summary.csv
+artifacts/experiments/experiment_summary.json
 artifacts/experiments/experiment_summary.md
 artifacts/experiments/experiment_summary.html
+```
+
+The same script also writes a Markdown report draft:
+
+```text
+artifacts/final_report_draft.md
+artifacts/final_presentation_outline.md
+```
+
+The report draft can also be regenerated directly:
+
+```bash
+python3 scripts/generate_final_report.py
 ```
 
 ## Notes
