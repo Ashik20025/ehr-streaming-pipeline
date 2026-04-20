@@ -1,7 +1,7 @@
 {
-  "sent": 10000,
-  "elapsed_seconds": 0.29600358399994775,
-  "throughput_events_per_sec": 33783.374731036245,
+  "sent": 5000,
+  "elapsed_seconds": 0.15717566600000055,
+  "throughput_events_per_sec": 31811.540089163565,
   "patients": 5000,
   "rate_limit_events_per_sec": 0.0,
   "allowed_lateness_sec": 300,

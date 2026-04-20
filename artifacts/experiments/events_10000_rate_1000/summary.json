@@ -1,6 +1,6 @@
 {
   "pipeline": "Kafka-Flink-Redis-Cassandra EHR streaming pipeline",
-  "generated_at_epoch_ms": 1776706496254,
+  "generated_at_epoch_ms": 1776706362321,
   "totals": {
     "valid": 9425,
     "quarantine": 575,
@@ -26,17 +26,17 @@
     "missing_medication": 19
   },
   "latency_ms": {
-    "avg_ms": 5459.278090185677,
-    "p50_ms": 5456.0,
-    "p95_ms": 9826.0,
-    "max_ms": 10408.0
+    "avg_ms": 706.3196816976127,
+    "p50_ms": 681.0,
+    "p95_ms": 959.0,
+    "max_ms": 1155.0
   },
   "producer": {
     "sent": 10000,
-    "elapsed_seconds": 0.29600358399994775,
-    "throughput_events_per_sec": 33783.374731036245,
+    "elapsed_seconds": 10.00298475400001,
+    "throughput_events_per_sec": 999.7016136609808,
     "patients": 5000,
-    "rate_limit_events_per_sec": 0.0,
+    "rate_limit_events_per_sec": 1000.0,
     "allowed_lateness_sec": 300,
     "invalid_rate": 0.04,
     "duplicate_rate": 0.02,

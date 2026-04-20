@@ -29,9 +29,17 @@ valid records, quarantined records, and generated alerts.
 
 ## Experiment Summary
 
-No experiment matrix has been generated yet. Run `scripts/run_experiment_matrix.sh` and regenerate this report.
+- Experiment runs summarized: 4
+- Total synthetic events sent across runs: 30,000
+- Highest producer throughput: 33,783 events/sec in `events_10000_rate_0`
+- Lowest p95 latency: 783 ms in `events_5000_rate_1000`
 
-
+| run | events_sent | patients | rate_limit | producer_events_per_sec | valid | quarantine | accepted_percent | avg_latency_ms | p95_latency_ms | top_quarantine_reason |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| events_10000_rate_0 | 10000 | 5000 | 0.0 | 33783.37 | 9425 | 575 | 94.25 | 5459.28 | 9826.0 | duplicate_event_id (175) |
+| events_10000_rate_1000 | 10000 | 5000 | 1000.0 | 999.7 | 9425 | 575 | 94.25 | 706.32 | 959.0 | duplicate_event_id (175) |
+| events_5000_rate_0 | 5000 | 5000 | 0.0 | 31811.54 | 4725 | 275 | 94.5 | 3004.82 | 5219.0 | duplicate_event_id (86) |
+| events_5000_rate_1000 | 5000 | 5000 | 1000.0 | 999.53 | 4725 | 275 | 94.5 | 601.19 | 783.0 | duplicate_event_id (86) |
 
 ## Latest Pipeline Run
 
@@ -41,9 +49,9 @@ No experiment matrix has been generated yet. Run `scripts/run_experiment_matrix.
 - Quarantined records: 575
 - Accepted records: 94.25%
 - Alerts: 1
-- Producer throughput: 28,083 events/sec
-- Average latency: 5,809 ms
-- P95 latency: 10,212 ms
+- Producer throughput: 33,783 events/sec
+- Average latency: 5,459 ms
+- P95 latency: 9,826 ms
 
 ### Quarantine Reasons
 
