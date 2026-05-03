@@ -1,0 +1,199 @@
+name: ehr-stream-pipeline
+
+services:
+  kafka:
+    image: apache/kafka:3.9.0
+    container_name: ehr-kafka
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_NODE_ID: "1"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:29092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  kafka-init:
+    image: apache/kafka:3.9.0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "-lc"]
+    command:
+      - |
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --replication-factor 1 --partitions 6 --topic ehr.raw
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --replication-factor 1 --partitions 6 --topic ehr.valid
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --replication-factor 1 --partitions 6 --topic ehr.quarantine
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --replication-factor 1 --partitions 6 --topic ehr.alerts
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list
+
+  redis:
+    image: redis:7-alpine
+    container_name: ehr-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  cassandra:
+    image: cassandra:4.1
+    container_name: ehr-cassandra
+    ports:
+      - "9042:9042"
+    environment:
+      CASSANDRA_CLUSTER_NAME: "ehr-local"
+      CASSANDRA_DC: "datacenter1"
+      CASSANDRA_ENDPOINT_SNITCH: "GossipingPropertyFileSnitch"
+      MAX_HEAP_SIZE: "1024M"
+      HEAP_NEWSIZE: "256M"
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -e 'describe cluster' >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+
+  cassandra-init:
+    image: cassandra:4.1
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    volumes:
+      - ./cassandra/schema.cql:/schema.cql:ro
+    entrypoint: ["/bin/bash", "-lc"]
+    command:
+      - "/opt/cassandra/bin/cqlsh cassandra -f /schema.cql && echo Cassandra schema ready"
+
+  flink-jobmanager:
+    build:
+      context: ./flink-job
+    image: ehr-flink-pipeline:local
+    container_name: ehr-flink-jobmanager
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      JOB_MANAGER_RPC_ADDRESS: flink-jobmanager
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        parallelism.default: 2
+        state.backend: hashmap
+        execution.checkpointing.interval: 10000
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      cassandra-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  flink-taskmanager:
+    image: ehr-flink-pipeline:local
+    container_name: ehr-flink-taskmanager
+    command: taskmanager
+    environment:
+      JOB_MANAGER_RPC_ADDRESS: flink-jobmanager
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        parallelism.default: 2
+        state.backend: hashmap
+        execution.checkpointing.interval: 10000
+    depends_on:
+      flink-jobmanager:
+        condition: service_started
+
+  flink-submit:
+    image: ehr-flink-pipeline:local
+    depends_on:
+      flink-jobmanager:
+        condition: service_started
+      flink-taskmanager:
+        condition: service_started
+    entrypoint: ["/bin/bash", "-lc"]
+    command:
+      - |
+        sleep 15
+        flink run -d \
+          -m flink-jobmanager:8081 \
+          -c edu.ehr.EHRFlinkPipeline \
+          /opt/flink/usrlib/ehr-flink-pipeline.jar \
+          --kafka.bootstrap.servers kafka:9092 \
+          --redis.host redis \
+          --redis.port 6379 \
+          --cassandra.host cassandra \
+          --cassandra.port 9042 \
+          --allowed.lateness.seconds ${ALLOWED_LATENESS:-300} \
+          --parallelism 2
+
+  producer:
+    build:
+      context: ./stream-tools
+    image: ehr-stream-tools:local
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./artifacts:/artifacts
+    entrypoint: ["python", "/app/producer.py"]
+    command:
+      - "--bootstrap-servers"
+      - "kafka:9092"
+      - "--redis-host"
+      - "redis"
+      - "--events"
+      - "${EVENTS:-100000}"
+      - "--patients"
+      - "${PATIENTS:-10000}"
+      - "--rate"
+      - "${RATE:-0}"
+      - "--allowed-lateness-sec"
+      - "${ALLOWED_LATENESS:-300}"
+      - "--metrics-output"
+      - "/artifacts/distributed_run_metrics.json"
+
+  reporter:
+    image: ehr-stream-tools:local
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    volumes:
+      - ./artifacts:/artifacts
+    entrypoint: ["python", "/app/report.py"]
+    command:
+      - "--cassandra-host"
+      - "cassandra"
+      - "--output"
+      - "/artifacts/distributed_report.html"
+      - "--metrics-input"
+      - "/artifacts/distributed_run_metrics.json"
+      - "--json-output"
+      - "/artifacts/distributed_summary.json"
+
+  dashboard:
+    build:
+      context: ./dashboard
+    image: ehr-dashboard:local
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./artifacts/distributed_summary.json:/app/public/distributed_summary.json:ro
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

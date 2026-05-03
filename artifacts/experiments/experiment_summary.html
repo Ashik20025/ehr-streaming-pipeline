@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EHR Pipeline Experiment Summary</title>
+  <style>
+    body { margin: 0; background: #f7faf8; color: #17211f; font-family: Arial, Helvetica, sans-serif; }
+    main { max-width: 1180px; margin: 0 auto; padding: 32px 18px 48px; }
+    h1 { margin: 0 0 8px; }
+    p { max-width: 860px; line-height: 1.5; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 22px 0; }
+    .card { background: white; border: 1px solid #d8e3df; border-radius: 8px; padding: 14px; }
+    .card span { color: #50625c; display: block; margin-bottom: 5px; }
+    .card strong { font-size: 1.4rem; }
+    table { width: 100%; border-collapse: collapse; background: white; border: 1px solid #d8e3df; }
+    th, td { border-bottom: 1px solid #d8e3df; padding: 10px; text-align: left; font-size: 0.92rem; }
+    th { background: #edf5f2; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>EHR Pipeline Experiment Summary</h1>
+  <p>
+    This table aggregates repeated Kafka-Flink-Redis-Cassandra EHR streaming
+    runs. Use it for the final report after collecting multiple workloads.
+  </p>
+  <section class="cards">
+    <div class="card"><span>Runs summarized</span><strong>4</strong></div>
+    <div class="card"><span>Highest producer throughput</span><strong>33,783/s</strong></div>
+    <div class="card"><span>Lowest p95 latency</span><strong>783 ms</strong></div>
+    <div class="card"><span>Total events sent</span><strong>30,000</strong></div>
+  </section>
+  <table>
+    <thead><tr><th>run</th><th>events_sent</th><th>patients</th><th>rate_limit</th><th>producer_events_per_sec</th><th>valid</th><th>quarantine</th><th>alerts</th><th>accepted_percent</th><th>quarantine_percent</th><th>avg_latency_ms</th><th>p50_latency_ms</th><th>p95_latency_ms</th><th>max_latency_ms</th><th>top_quarantine_reason</th><th>event_mix</th></tr></thead>
+    <tbody><tr><td>events_10000_rate_0</td><td>10000</td><td>5000</td><td>0.0</td><td>33783.37</td><td>9425</td><td>575</td><td>1</td><td>94.25</td><td>5.75</td><td>5459.28</td><td>5456.0</td><td>9826.0</td><td>10408.0</td><td>duplicate_event_id (175)</td><td>admission:2266, lab:2415, medication:2378, vital:2366</td></tr>
+<tr><td>events_10000_rate_1000</td><td>10000</td><td>5000</td><td>1000.0</td><td>999.7</td><td>9425</td><td>575</td><td>1</td><td>94.25</td><td>5.75</td><td>706.32</td><td>681.0</td><td>959.0</td><td>1155.0</td><td>duplicate_event_id (175)</td><td>admission:2266, lab:2415, medication:2378, vital:2366</td></tr>
+<tr><td>events_5000_rate_0</td><td>5000</td><td>5000</td><td>0.0</td><td>31811.54</td><td>4725</td><td>275</td><td>0</td><td>94.5</td><td>5.5</td><td>3004.82</td><td>3033.0</td><td>5219.0</td><td>5483.0</td><td>duplicate_event_id (86)</td><td>admission:1118, lab:1199, medication:1197, vital:1211</td></tr>
+<tr><td>events_5000_rate_1000</td><td>5000</td><td>5000</td><td>1000.0</td><td>999.53</td><td>4725</td><td>275</td><td>0</td><td>94.5</td><td>5.5</td><td>601.19</td><td>615.0</td><td>783.0</td><td>899.0</td><td>duplicate_event_id (86)</td><td>admission:1118, lab:1199, medication:1197, vital:1211</td></tr></tbody>
+  </table>
+</main>
+</body>
+</html>
